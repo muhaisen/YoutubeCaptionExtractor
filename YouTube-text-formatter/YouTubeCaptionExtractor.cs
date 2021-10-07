@@ -6,11 +6,14 @@ using System.Text;
 
 namespace YouTube_text_formatter
 {
+    /// <summary>
+    /// Extracts Youtube Caption
+    /// </summary>
     class YouTubeCaptionExtractor
     {
         static string allWords = "";
+        static readonly int currentLineLimit = 20;
         static List<string> FineLines = new List<string>();
-        static int currentLineLimit = 20;
         static List<string> linesCopy = new List<string>();
 
         static void Main(string[] args)
@@ -27,11 +30,16 @@ namespace YouTube_text_formatter
                 }
             }
             GetLongString(OnlyChatachters.ToArray());
-            AppendLines(OnlyChatachters);
+            AppendLines();
             WriteFileDown(FineLines.ToArray());
             System.Diagnostics.Debug.WriteLine("Done");
         }
-        static private bool IsTime(string line)
+        /// <summary>
+        /// Checks if the passed line contains time only (in format of 10:52)
+        /// </summary>
+        /// <param name="line"></param>
+        /// <returns></returns>
+            static private bool IsTime(string line)
         {
             if (line.Contains(':') && line[0].ToString().Any(c => char.IsDigit(c)) && line[1].ToString().Any(c => char.IsDigit(c)))
             {
@@ -39,6 +47,11 @@ namespace YouTube_text_formatter
             }
             return false;
         }
+        /// <summary>
+        /// Check if the line is only sound efffect such as applause or laughs.
+        /// </summary>
+        /// <param name="line"></param>
+        /// <returns></returns>
         static private bool IsSoundEffect(string line)
         {
             if (line.Contains('[') && line.Contains(']'))
@@ -47,13 +60,17 @@ namespace YouTube_text_formatter
             }
             return false;
         }
-        static private void AppendLines(List<string> lines)
+        /// <summary>
+        /// Creates lines from the one line of all the text. 
+        /// </summary>
+        /// <param name="lines"></param>
+        static private void AppendLines()
         {
-            //int First = 0; int Second = 1; int Third = 2;
+            // The inital definition of the line length is 20 words.
             var words = allWords.Split(' ');
             linesCopy = new List<string>(words.ToList());
-            int div = linesCopy.Count / 20; //quotient is 1
-            int mod = linesCopy.Count % 20; //remainder is 2
+            int div = linesCopy.Count / 20;
+            int mod = linesCopy.Count % 20;
             for (int x = 0; x < div+1; x++) {
                 // If the current iteration is not the last one.
                 if (div != x) {
@@ -64,6 +81,11 @@ namespace YouTube_text_formatter
                 }
             }
         }
+        /// <summary>
+        /// Adds single lines of the defined lenght to the list of strings prapring for the last phase.
+        /// </summary>
+        /// <param name="count"></param>
+        /// <param name="Islast"></param>
         static void AddWordsToLine(int count,bool Islast) {
             string tempString = "";
             for (int x = 0; x < count; x++) {
@@ -72,11 +94,19 @@ namespace YouTube_text_formatter
             FineLines.Add(tempString);
             if(!Islast) RemoveWordsFromList(count);
         }
+        /// <summary>
+        /// Pops the X count number of the list.
+        /// </summary>
+        /// <param name="count"></param>
         static void RemoveWordsFromList(int count)
         {
             linesCopy.RemoveRange(0, count);
 
         }
+        /// <summary>
+        /// Iterates over all the lines, aggregates them into one long string.
+        /// </summary>
+        /// <param name="lines"></param>
         static void GetLongString(string[] lines)
         {
             for (int x = 0; x < lines.Length; x++)
@@ -88,7 +118,11 @@ namespace YouTube_text_formatter
                  
             }
         }
-            static private bool WriteFileDown(string[] lines)
+        /// <summary>
+        /// Writes a file down to a directory of your liking. 
+        /// </summary>
+        /// <param name="lines"></param>    
+        static void WriteFileDown(string[] lines)
         {
             string path = @"c:\Youtube\youOut.txt";
 
@@ -97,9 +131,8 @@ namespace YouTube_text_formatter
             {
                 // Create a file to write to.
                 File.WriteAllLines(path, lines, Encoding.UTF8);
-                return true;
             }
-            else { return false; }
+            else { System.Diagnostics.Debug.WriteLine("Error saving the file to the given directory"); }
         }
     }
 }
